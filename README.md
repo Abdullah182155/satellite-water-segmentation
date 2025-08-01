@@ -156,3 +156,9 @@ pip install -r requirements.txt
 ---
 
 Made with ❤️ for geospatial deep learning.
+
+
+
+
+example flask API (UI)
+<img width="1102" height="745" alt="image" src="https://github.com/user-attachments/assets/f5e18788-db73-4821-afcc-fdc79400a42c" />
