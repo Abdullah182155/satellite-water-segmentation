@@ -1,0 +1,68 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Virtual environments
+venv/
+env/
+.env/
+.venv/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# VSCode settings
+.vscode/
+
+# PyCharm
+.idea/
+
+# Data files
+data/
+*.csv
+*.tif
+*.tiff
+
+# MLflow artifacts and logs
+mlruns/
+*.zip
+
+# Models and checkpoints
+*.pth
+*.pt
+*.ckpt
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python bytecode cache folders
+__pycache__/
+*.py[cod]
+
+# Coverage reports
+.coverage
+htmlcov/
+.coverage.*
+
+# Ignore requirements lock files if any
+Pipfile.lock
+
+# Ignore outputs from pytest
+.cache/
+.pytest_cache/
+
+# Ignore zip files in root
+*.zip
+

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Water Segmentation</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Water Segmentation</h1>
+      <p class="subtitle">Upload a .tif/.tiff image and get predicted water mask vs ground truth</p>
+    </header>
+
+    <main>
+      <form method="post" enctype="multipart/form-data" class="upload-form">
+        <label class="custom-file">
+          <input type="file" name="file" accept=".tif,.tiff" required>
+          <span class="file-btn">Choose .tif file</span>
+          <span class="file-name">No file chosen</span>
+        </label>
+        <button type="submit" class="primary-btn">Upload & Predict</button>
+      </form>
+
+      {% if error %}
+        <div class="alert error">Error: {{ error }}</div>
+      {% endif %}
+
+      {% if image %}
+        <section class="result">
+          <h2>Result</h2>
+          <div class="image-wrapper">
+            <img src="data:image/png;base64,{{ image }}" alt="Segmentation result">
+          </div>
+        </section>
+      {% endif %}
+    </main>
+
+    <footer>
+      <small>© {{ ('' ) }} Water Segmentation Demo</small>
+    </footer>
+  </div>
+
+  <script>
+    // Display selected filename
+    const fileInput = document.querySelector('input[type=file]');
+    const fileNameSpan = document.querySelector('.file-name');
+    fileInput?.addEventListener('change', function () {
+      const name = this.files[0]?.name || 'No file chosen';
+      fileNameSpan.textContent = name;
+    });
+  </script>
+</body>
+</html>
