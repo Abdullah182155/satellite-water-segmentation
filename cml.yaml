@@ -1,0 +1,91 @@
+name: CML inference + visualization
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+
+jobs:
+  cml:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install cml        # CML helper
+          pip install -r requirements.txt
+
+      - name: Run inference & create artifacts
+        env:
+          CML_TOKEN: ${{ secrets.CML_TOKEN }}  # or use GITHUB_TOKEN if configured
+          GITHUB_WORKSPACE: ${{ github.workspace }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          CML_OUTPUT_PATH: output   # arbitrary output folder
+        run: |
+          mkdir -p $CML_OUTPUT_PATH
+          echo "Running prediction on sample tif..."
+          # Example Python snippet that uses your existing pipeline to produce one visualization and metric.
+          python - <<'PY'
+import os
+from model import load_model, predict
+from utils.preprocess import preprocess_tif
+from utils.labels import load_label_image
+from utils.visualize import plot_to_base64, save_plot  # assume you add helper to save instead of base64
+
+# adjust these to match a test file you have in repo
+test_tif = "tests/sample.tif"
+filename = os.path.basename(test_tif)
+
+model = load_model()
+input_tensor, input_tensor_vis = preprocess_tif(
+    test_tif, vis_channels=[0,1,2], device="cpu"  # adapt VIS_CHANNELS/DEVICE as needed
+)
+pred_mask = predict(model, input_tensor, threshold=0.5)
+true_mask = load_label_image(filename)
+
+vis_for_plot = input_tensor_vis[0]  # remove batch
+# Suppose you extend plot_to_base64 or add save function to dump image
+from utils.visualize import visualize_and_save  # you can implement this
+os.makedirs("output", exist_ok=True)
+# This function should create a PNG comparing pred vs true and save to output/pred_vs_true.png
+visualize_and_save(vis_for_plot, pred_mask, true_mask, out_path="output/pred_vs_true.png")
+
+# Compute a dummy metric (e.g., IoU)
+import numpy as np
+intersection = np.logical_and(pred_mask>0.5, true_mask>0.5).sum()
+union = np.logical_or(pred_mask>0.5, true_mask>0.5).sum()
+iou = intersection / union if union != 0 else 0
+print(f"IoU: {iou:.4f}")
+
+with open("output/metrics.txt", "w") as f:
+    f.write(f"IoU: {iou:.4f}\n")
+PY
+
+      - name: Report to PR with CML
+        if: github.event_name == 'pull_request'
+        run: |
+          # post comment with image and metrics
+          cml-comment --md <<'EOF'
+### 🚀 CML Prediction Report
+
+**Metric**:
+$(cat output/metrics.txt)
+
+**Visualization**:
+![pred vs true](./output/pred_vs_true.png)
+EOF
+
+      - name: Upload artifacts (optional)
+        uses: actions/upload-artifact@v4
+        with:
+          name: cml-output
+          path: output/

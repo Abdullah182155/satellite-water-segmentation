@@ -1,0 +1,68 @@
+name: churn-imbalanced-dataset
+
+on: [push, pull_request]
+
+permissions:
+  contents: write  # allow writing comments on PRs
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Setup CML
+        uses: iterative/setup-cml@v1
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run inference script (no Flask server)
+        run: |
+          python run_inference.py
+
+      - name: Generate CML report
+        run: |
+          echo "## Metrics" > report.md
+
+          if [ -f metrics.txt ]; then
+            cat metrics.txt >> report.md
+          else
+            echo "_No metrics.txt found_" >> report.md
+          fi
+
+          echo "## Input Image" >> report.md
+          if [ -f input_image.png ]; then
+            echo "![](input_image.png)" >> report.md
+          else
+            echo "_No input_image.png found_" >> report.md
+          fi
+
+          echo "## Prediction Mask" >> report.md
+          if [ -f pred_mask.png ]; then
+            echo "![](pred_mask.png)" >> report.md
+          else
+            echo "_No pred_mask.png found_" >> report.md
+          fi
+
+          echo "## Ground Truth Mask" >> report.md
+          if [ -f true_mask.png ]; then
+            echo "![](true_mask.png)" >> report.md
+          else
+            echo "_No true_mask.png found_" >> report.md
+          fi
+
+      - name: Post CML comment
+        env:
+          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cml comment create report.md
