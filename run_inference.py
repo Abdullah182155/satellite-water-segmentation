@@ -3,7 +3,7 @@ import numpy as np
 from model import load_model, predict
 from utils.preprocess import preprocess_tif
 from utils.labels import load_label_image
-from utils.visualize import combine_and_save_images  # we'll add this function below
+from utils.vis import combine_and_save_images  # we'll add this function below
 
 # Path to your test TIFF file
 test_file = "data/images/205.tif"
