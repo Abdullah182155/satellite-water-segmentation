@@ -3,7 +3,7 @@ name: churn-imbalanced-dataset
 on: [push, pull_request]
 
 permissions:
-  contents: write  # allow writing comments on PRs
+  contents: write  # needed to post comments on PRs
 
 jobs:
   run:
@@ -26,7 +26,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run inference script (no Flask server)
+      - name: Run inference script
         run: |
           python run_inference.py
 
@@ -40,29 +40,15 @@ jobs:
             echo "_No metrics.txt found_" >> report.md
           fi
 
-          echo "## Input Image" >> report.md
-          if [ -f input_image.png ]; then
-            echo "![](input_image.png)" >> report.md
+          echo "## Combined Result Image" >> report.md
+          if [ -f combined_result.png ]; then
+            echo "![](combined_result.png)" >> report.md
           else
-            echo "_No input_image.png found_" >> report.md
-          fi
-
-          echo "## Prediction Mask" >> report.md
-          if [ -f pred_mask.png ]; then
-            echo "![](pred_mask.png)" >> report.md
-          else
-            echo "_No pred_mask.png found_" >> report.md
-          fi
-
-          echo "## Ground Truth Mask" >> report.md
-          if [ -f true_mask.png ]; then
-            echo "![](true_mask.png)" >> report.md
-          else
-            echo "_No true_mask.png found_" >> report.md
+            echo "_No combined_result.png found_" >> report.md
           fi
 
       - name: Post CML comment
         env:
           REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cml comment create report.md
+          cml comment create report.md --reuse

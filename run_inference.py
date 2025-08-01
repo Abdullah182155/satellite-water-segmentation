@@ -1,11 +1,12 @@
 import os
+import numpy as np
 from model import load_model, predict
 from utils.preprocess import preprocess_tif
 from utils.labels import load_label_image
-from utils.vis import save_plot_as_png  # You'll need to implement this function
+from utils.visualize import combine_and_save_images  # we'll add this function below
 
-# Use your file path:
-test_file = r"data/images/205.tif"  # use forward slashes for cross-platform compatibility
+# Path to your test TIFF file
+test_file = "data/images/205.tif"
 
 model = load_model()
 
@@ -15,19 +16,16 @@ input_tensor, input_tensor_vis = preprocess_tif(test_file)
 # Predict mask
 pred_mask = predict(model, input_tensor)
 
-# Load true mask (assuming your load_label_image works with the filename)
+# Load true mask
 true_mask = load_label_image("205.tif")
 
-# Save input visualization image
-input_img = input_tensor_vis[0]  # remove batch dimension
+# Get input image visualization (remove batch dimension)
+input_img = input_tensor_vis[0]
 
-# Save the images as PNG files for the CML report
-save_plot_as_png(input_img, "input_image.png")
-save_plot_as_png(pred_mask, "pred_mask.png")
-save_plot_as_png(true_mask, "true_mask.png")
+# Combine and save all three images into one file
+combine_and_save_images(input_img, pred_mask, true_mask, "combined_result.png")
 
-# Save some example metric to metrics.txt
+# Save metrics example: pixel-wise accuracy
+accuracy = (pred_mask == true_mask).mean()
 with open("metrics.txt", "w") as f:
-    # For example, compute simple pixel-wise accuracy (you can improve this)
-    accuracy = (pred_mask == true_mask).mean()
     f.write(f"Pixel-wise accuracy: {accuracy:.4f}\n")
