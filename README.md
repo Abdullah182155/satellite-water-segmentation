@@ -4,6 +4,17 @@ This repository contains experiments and implementations of various semantic seg
 
 ---
 
+---
+
+### 🔥 **Highlight Metrics**
+
+- **High Intersection over Union (IoU): 84%**
+- **High F1 Score: 91%**
+
+These metrics demonstrate the strong performance of the best models in accurately segmenting water bodies from multispectral satellite images.
+
+---
+
 ## 1. Models and Encoders Overview
 
 This project explores multiple semantic segmentation architectures using the [`segmentation_models_pytorch (smp)`](https://github.com/qubvel/segmentation_models.pytorch) library. The goal is to compare model performance on multispectral satellite images with selected bands as input.
